@@ -11,7 +11,7 @@ Student ID: 260921269
 #include <cstdlib>
 using namespace std;
 
-//Create two enums for Rank and Type of Cards
+//Create enum for Ranks
 enum Rank
 {
     ACE,
@@ -28,6 +28,7 @@ enum Rank
     QUEEN,
     KING
 };
+//Create enum for Types
 enum Type
 {
     CLUBS,
@@ -48,14 +49,17 @@ private:
     Rank aRank;
 };
 
+//Constructor initialize corresponding fields
 Card::Card(Type pType, Rank pRank)
 {
     this->aType = pType;
     this->aRank = pRank;
 }
 
+//This function should be constant since we would call it in a constant function
 int Card ::getValue() const
 {
+    //No need to have default case
     switch (this->aRank)
     {
     case ACE:
@@ -84,13 +88,12 @@ int Card ::getValue() const
         return 10;
     case KING:
         return 10;
-    default:
-        return 0;
     }
 }
 
 void Card ::displayCard()
 {
+    //No need to have default case
     switch (this->aRank)
     {
     case ACE:
@@ -133,6 +136,7 @@ void Card ::displayCard()
         cout << "K";
         break;
     }
+    //No need to have default case
     switch (this->aType)
     {
     case CLUBS:
@@ -165,6 +169,7 @@ private:
 
 void Hand::add(Card pCard)
 {
+    //add the new Card at end of the vector
     this->allCards.push_back(pCard);
 }
 
@@ -173,9 +178,11 @@ void Hand::clear()
     this->allCards.clear();
 }
 
+//This method declared as const since it would be called in a constant function
 int Hand::getTotal() const
 {
     int sum = 0;
+    //To check if the player have an ACE in hand
     bool ifAce = false;
     for (int i = 0; i < this->allCards.size(); i++)
     {
@@ -203,6 +210,7 @@ void Hand::displayHand()
         this->allCards[i].displayCard();
         cout << " ";
     }
+    //Also show the value in hand
     cout << "[" << this->getTotal() << "]" << endl;
 }
 
@@ -217,6 +225,7 @@ private:
     vector<Card> allCards;
 };
 
+//Create all Cards. (Actually we can implement flyweight design pattern for Card class)
 void Deck::Populate()
 {
     this->allCards.clear();
@@ -235,6 +244,7 @@ void Deck::shuffle()
     //tried to use random_shuffle, but cannot achieve completely random
     //random_shuffle(this->allCards.begin(), this->allCards.end());
     srand(time(0));
+    //called Fisher Yates shuffle algorithm.
     for (int i = this->allCards.size() - 1; i >= 0; i--)
     {
         int random = rand() % this->allCards.size();
@@ -242,6 +252,7 @@ void Deck::shuffle()
     }
 }
 
+//Pass by reference since we need to add the card to the hand
 void Deck::deal(Hand &pHand)
 {
     Card toDeal = this->allCards.back();
@@ -269,6 +280,7 @@ public:
     void announce(Hand computer);
 };
 
+//Wheter the HumanPlayer is drawing or not depend on player's choice
 bool HumanPlayer ::isDrawing() const
 {
     if (this->getTotal() > 21)
@@ -288,12 +300,14 @@ bool HumanPlayer ::isDrawing() const
     }
     else
     {
+        //throw an exception if the user enter an invalid input
         throw "You answer is not y/n";
     }
 }
 
 void HumanPlayer ::announce(Hand computer)
 {
+    //The player who busted first will lose the game
     if (this->isBusted())
     {
         cout << "Player busts." << endl;
@@ -342,7 +356,9 @@ private:
 void BlackJackGame::play()
 {
     cout << "Now begin a new round!" << endl;
+    //We need to clear the hand of casino every round since we only have one casino
     m_casino.clear();
+    //Reset the deck, the deck will be cleared before populate
     m_deck.Populate();
     m_deck.shuffle();
     //Computer will have one open card
@@ -356,6 +372,7 @@ void BlackJackGame::play()
     m_deck.deal(player);
     cout << "Player: ";
     player.displayHand();
+    //Player's turn
     while (player.isDrawing())
     {
         m_deck.deal(player);
@@ -369,6 +386,7 @@ void BlackJackGame::play()
         }
     }
     cout << "Player stop drawing. Casino's turn." << endl;
+    //Casino's turn
     while (m_casino.isDrawing())
     {
         m_deck.deal(m_casino);
